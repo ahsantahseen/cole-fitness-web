@@ -9,6 +9,9 @@ import {
   Activity,
   TrendingUp,
   Users,
+  Menu,
+  MoreHorizontalIcon,
+  LogOut,
 } from "lucide-react";
 import {
   Card,
@@ -40,16 +43,19 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Navbar from "@/components/ui/navbar";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("equipment");
-  const [profileData, setProfileData] = useState({
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState({
     name: "John Doe",
     email: "john.doe@example.com",
     phone: "(123) 456-7890",
     address: "123 Fitness St, Gym City, SP 12345",
-    profilePicture: "/placeholder.svg",
+    profilePicture: "/profile_pic.jpg",
   });
 
   const equipmentData = [
@@ -57,38 +63,38 @@ export default function Dashboard() {
       name: "Treadmill",
       description: "High-end running machine",
       availability: "Available",
-      image:
-        "https://images.unsplash.com/photo-1591940765155-0604537032a5?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      image: "https://img.icons8.com/ios-filled/100/treadmill.png",
     },
     {
       name: "Rowing Machine",
       description: "Full-body workout equipment",
-      availability: "In Use",
-      image: "/placeholder.svg?height=100&width=100",
+      availability: "Available",
+      image: "https://img.icons8.com/ios-filled/100/rowing.png",
     },
     {
       name: "Weight Bench",
       description: "Adjustable weight bench",
       availability: "Available",
-      image: "/placeholder.svg?height=100&width=100",
+      image: "https://img.icons8.com/ios-filled/100/bench-press.png",
     },
     {
       name: "Elliptical",
       description: "Low-impact cardio machine",
       availability: "Available",
-      image: "/placeholder.svg?height=100&width=100",
+      image:
+        "https://img.icons8.com/external-vitaliy-gorbachev-fill-vitaly-gorbachev/100/external-elliptical-health-vitaliy-gorbachev-fill-vitaly-gorbachev.png",
     },
     {
       name: "Squat Rack",
       description: "For heavy lifting and squats",
-      availability: "In Use",
-      image: "/placeholder.svg?height=100&width=100",
+      availability: "Out of Order",
+      image: "/squat-rack-100.png",
     },
     {
       name: "Leg Press",
       description: "Lower body strength machine",
       availability: "Available",
-      image: "/placeholder.svg?height=100&width=100",
+      image: "/leg-press-100.png",
     },
   ];
 
@@ -126,9 +132,9 @@ export default function Dashboard() {
       email: formData.get("email") as string,
       phone: formData.get("phone") as string,
       address: formData.get("address") as string,
-      profilePicture: profileData.profilePicture,
+      profilePicture: currentUser.profilePicture,
     };
-    setProfileData(updatedProfile);
+    setCurrentUser(updatedProfile);
     // Here you would typically send this data to your backend
   };
 
@@ -139,7 +145,7 @@ export default function Dashboard() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfileData((prev) => ({
+        setCurrentUser((prev) => ({
           ...prev,
           profilePicture: reader.result as string,
         }));
@@ -148,26 +154,40 @@ export default function Dashboard() {
     }
   };
 
+  const handleLogout = () => {
+    // Implement logout logic here
+    router.replace("/");
+  };
+
   return (
     <div>
-      <Navbar></Navbar>
-      <div className="h-screen bg-gray-100 p-4 md:p-8">
-        <div className="max-w-7xl mx-auto space-y-8">
-          <header className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Welcome back, {profileData.name.split(" ")[0]}!
+      <div className="min-h-screen bg-gray-100">
+        <header className="bg-white shadow mb-3">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Member Dashboard
             </h1>
-            <div className="flex justify-center items-center">
-              <Button variant="outline" size="icon">
-                <Bell className="h-4 w-4" />
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+              <Button variant="ghost" size="icon">
+                <Bell className="h-6 w-6" />
                 <span className="sr-only">Notifications</span>
               </Button>
-              <Button variant="destructive" className="ml-2">
-                Log Out
+              <Button onClick={handleLogout}>
+                Logout <LogOut></LogOut>
               </Button>
             </div>
-          </header>
-
+          </div>
+        </header>
+        <div className="max-w-7xl w-full mx-auto space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card>
               <CardHeader>
@@ -198,13 +218,14 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center space-x-4">
-                  <Avatar className="h-20 w-20">
+                  <Avatar className="h-20 w-20 object-cover">
                     <AvatarImage
-                      src={profileData.profilePicture}
+                      src={currentUser.profilePicture}
                       alt="Profile picture"
+                      className="object-cover"
                     />
                     <AvatarFallback>
-                      {profileData.name
+                      {currentUser.name
                         .split(" ")
                         .map((n) => n[0])
                         .join("")}
@@ -212,9 +233,9 @@ export default function Dashboard() {
                   </Avatar>
                   <div>
                     <h3 className="text-xl font-semibold">
-                      {profileData.name}
+                      {currentUser.name}
                     </h3>
-                    <p className="text-gray-500">{profileData.email}</p>
+                    <p className="text-gray-500">{currentUser.email}</p>
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="outline" size="sm" className="mt-2">
@@ -254,7 +275,7 @@ export default function Dashboard() {
                               <Input
                                 id="name"
                                 name="name"
-                                defaultValue={profileData.name}
+                                defaultValue={currentUser.name}
                                 className="col-span-3"
                               />
                             </div>
@@ -265,7 +286,7 @@ export default function Dashboard() {
                               <Input
                                 id="email"
                                 name="email"
-                                defaultValue={profileData.email}
+                                defaultValue={currentUser.email}
                                 className="col-span-3"
                               />
                             </div>
@@ -276,7 +297,7 @@ export default function Dashboard() {
                               <Input
                                 id="phone"
                                 name="phone"
-                                defaultValue={profileData.phone}
+                                defaultValue={currentUser.phone}
                                 className="col-span-3"
                               />
                             </div>
@@ -287,7 +308,7 @@ export default function Dashboard() {
                               <Input
                                 id="address"
                                 name="address"
-                                defaultValue={profileData.address}
+                                defaultValue={currentUser.address}
                                 className="col-span-3"
                               />
                             </div>
@@ -384,7 +405,7 @@ export default function Dashboard() {
                                 <img
                                   src={item.image}
                                   alt={item.name}
-                                  className="w-full h-32 object-cover mb-4 rounded"
+                                  className="w-full h-32 object-contain mb-4 rounded"
                                 />
                                 <h3 className="font-semibold">{item.name}</h3>
                                 <p className="text-sm text-gray-500 text-center">
@@ -431,7 +452,9 @@ export default function Dashboard() {
                             <p className="text-sm">{item.schedule}</p>
                           </div>
                           <div className="text-right">
-                            <Badge>{item.slots} slots left</Badge>
+                            <Badge variant="secondary">
+                              {item.slots} slots left
+                            </Badge>
                             <Button size="sm" className="mt-2">
                               Register
                             </Button>
@@ -462,7 +485,7 @@ export default function Dashboard() {
                               {item.date} at {item.time}
                             </p>
                           </div>
-                          <Button variant="outline" size="sm">
+                          <Button variant="destructive" size="sm">
                             Cancel
                           </Button>
                         </CardContent>

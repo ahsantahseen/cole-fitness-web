@@ -14,8 +14,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function LoginModal() {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -27,6 +30,7 @@ export default function LoginModal() {
     console.log("Login attempted with:", { email, password });
     // Close the modal after login attempt
     setIsOpen(false);
+    router.push("/members/dashboard");
   };
 
   const handleForgotPassword = () => {
